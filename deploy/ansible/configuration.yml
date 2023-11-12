@@ -1,0 +1,12 @@
+---
+- name: Provision VM
+  hosts: all
+  become: true
+  become_method: sudo
+  remote_user: tm_admin
+  vars:
+    gh_runner_config_token: ATVEQVB33W43NANX37QMAV3FKEL56
+    gh_runner_remove_token: ATVEQVACDW7ATVQIB55BLHDFKELUQ
+  tasks:
+    - import_tasks: ./roles/docker/tasks/tasks.yml
+    - import_tasks: ./roles/github/tasks/task.yml

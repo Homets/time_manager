@@ -1,0 +1,136 @@
+---
+- name: install git
+  apt:
+    name: git
+    state: present
+    update_cache: true
+  tags:
+    - install
+
+
+- name: delete repository if he already exist
+  file:
+    path: /home/tm_admin/discover_github_action/
+    state: absent
+    force: true
+  tags: 
+    - install
+
+- name: install time_manager git repository
+  git:
+    repo: https://github.com/Homets/discover_github_action
+    dest: /home/tm_admin/time_manager/
+    version: master
+    update: true
+    force: true
+  tags:
+    - install
+# Github action runner
+- name: Install dependencies on Ubuntu Focal systems
+  ansible.builtin.package:
+    pkg:
+      - acl
+      - liblttng-ust0
+      - libkrb5-3
+      - zlib1g
+      - libssl1.1
+      - libicu66
+    state: present
+    update_cache: true
+  tags:
+    - install
+
+- name: create runner dir
+  file:
+    path: /opt/github_runner/
+    mode: 0755
+    state: directory
+    owner: tm_admin
+  tags:
+    - install
+
+- name: download and unarchive runner tar
+  unarchive:
+    src: https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-x64-2.311.0.tar.gz
+    dest: /opt/github_runner
+    owner: tm_admin
+    mode: 0755
+    remote_src: true
+  tags:
+    - install
+
+- name: docker build
+  command:
+    cmd: "docker-compose -f 'docker-compose.yml' up -d --build"
+    chdir: /home/tm_admin/time_manager/
+  become: true
+  tags:
+    - install
+- name: GitHub Actions Runner | Pro-activelly uninstall before re-installing
+
+  block:
+    - name: Uninstall previous service
+      command:
+        cmd: "/opt/github_runner/svc.sh uninstall"
+        chdir: "/opt/github_runner/"
+      become: true
+
+    - name: Remove previous configuration before proceeding
+      become: true
+      become_user: tm_admin
+      command:
+        cmd: |
+          /opt/github_runner/config.sh remove \
+            --token {{ gh_runner_remove_token }}
+        chdir: "/opt/github_runner/"
+  tags:
+    - remove
+
+- name: runner configuration
+  command:
+    cmd: "./config.sh \
+    --replace
+    --url https://github.com/Homets/discover_github_action \
+    --token {{ gh_runner_config_token }} \
+    --name 'time_manager_runner' \
+    --work '/home/tm_admin/time_manager \
+    --unattended"
+  register: config_host_command
+  become_user: tm_admin
+  become: true
+  args:
+    chdir: /opt/github_runner/
+  tags:
+    - install
+
+- name: Check if path for state files exists
+  ansible.builtin.stat:
+    path: "/opt/github_runner/hosts"
+  tags:
+    - install
+
+- name: Install service
+  ansible.builtin.command:
+    cmd: "/opt/github_runner/svc.sh install tm_admin"
+    chdir: "/opt/github_runner/"
+  become: true
+  tags:
+    - install
+
+- name: Check service status
+  ansible.builtin.command:
+    cmd: "/opt/github_runner/svc.sh status"
+    chdir: "/opt/github_runner/"
+  register: gh_runner_service_status
+  become: true
+  tags:
+    - install
+
+- name: GitHub Actions Runner | Start service
+  ansible.builtin.command:
+    cmd: "/opt/github_runner/svc.sh start"
+    chdir: "/opt/github_runner/"
+  when: not '"active (running)"' in gh_runner_service_status.stdout
+  become: true
+  tags:
+    - install

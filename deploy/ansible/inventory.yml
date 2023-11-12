@@ -1,0 +1,6 @@
+---
+virtualmachines:
+  hosts:
+    azure-vm:
+      ansible_host: 4.233.208.13
+      ansible_ssh_private_key_file: /home/homets/.ssh/TM-PAR-19_key.pem

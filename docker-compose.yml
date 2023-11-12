@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  client:
+    build: ./front/
+    image: tm-par-19-client-1.0.0
+    container_name: tm-par-19-client
+    volumes:
+      - .:/front/app
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    env_file:
+      - front/.env.production
+    networks:
+      - time-manager-net
+    # restart: unless-stopped
+
+  api:
+    build: ./time_manager/
+    image: tm-par-19-rest-api-1.0.0
+    container_name: tm-par-19-rest-api
+    volumes:
+      - .:/time_manager/app
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      MIX_ENV: prod
+      SECRET_KEY_BASE: SECRET_KEY_BASE
+    env_file:
+      - ./env/prod.env
+    networks:
+      - time-manager-net
+    # restart: unless-stopped 
+
+  db:
+    image: postgres:12.16
+    container_name: tm-par-19-db
+    env_file:
+      - env/prod.env
+    restart: unless-stopped
+    networks:
+      - time-manager-net
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - './deploy/db.sql:/docker-entrypoint-initdb.d/init.sql'
+volumes:
+  db-data:
+
+networks:
+  time-manager-net:
