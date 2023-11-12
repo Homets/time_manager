@@ -19,7 +19,7 @@
   git:
     repo: https://github.com/Homets/time_manager.git
     dest: /home/tm_admin/time_manager/
-    version: master
+    version: main
     update: true
     force: true
   tags:
