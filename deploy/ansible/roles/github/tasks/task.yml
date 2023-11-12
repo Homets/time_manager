@@ -7,18 +7,17 @@
   tags:
     - install
 
-
 - name: delete repository if he already exist
   file:
-    path: /home/tm_admin/discover_github_action/
+    path: /home/tm_admin/time_manager
     state: absent
     force: true
-  tags: 
+  tags:
     - install
 
 - name: install time_manager git repository
   git:
-    repo: https://github.com/Homets/discover_github_action
+    repo: https://github.com/Homets/time_manager.git
     dest: /home/tm_admin/time_manager/
     version: master
     update: true
@@ -89,12 +88,12 @@
 - name: runner configuration
   command:
     cmd: "./config.sh \
-    --replace
-    --url https://github.com/Homets/discover_github_action \
-    --token {{ gh_runner_config_token }} \
-    --name 'time_manager_runner' \
-    --work '/home/tm_admin/time_manager \
-    --unattended"
+      --replace \
+      --url https://github.com/Homets/time_manager \
+      --token {{ gh_runner_config_token }} \
+      --name 'time_manager_runner' \
+      --work '/home/tm_admin/time_manager \
+      --unattended"
   register: config_host_command
   become_user: tm_admin
   become: true
