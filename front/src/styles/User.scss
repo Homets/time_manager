@@ -217,12 +217,13 @@
     margin-bottom: 15px;
     color: black;
 }
+
 .input-feild {
     display: flex;
     flex-direction: column;
     background-color: rgb(247, 247, 247);
     border-radius: 20px;
-    width: 70%;
+    width: 90%;
     justify-content: center;
     align-items: center;
     //   justify-content: space-around;
@@ -231,6 +232,13 @@
     padding-top: 20px;
     padding-bottom: 20px;
 //   margin: 10px 0px;
+
+    @media screen and (min-width: 510px) {
+        width: 400px;
+
+
+    }
+
     @media screen and (min-width: 810px) {
         width: 800px;
 

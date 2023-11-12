@@ -24,6 +24,11 @@
     force: true
   tags:
     - install
+
+- name: make repository owner tm_admin
+  command:
+    cmd: "chown tm_admin: /home/tm_admin/time_manager/"
+  become: true
 # Github action runner
 - name: Install dependencies on Ubuntu Focal systems
   ansible.builtin.package:

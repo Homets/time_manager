@@ -1,8 +1,14 @@
 <template>
     <div class="dash">
+      <div  v-if=" isAdmin === true" class="display-admin">
+        <UserManager></UserManager>
+      </div>
+
+      <div  v-else-if=" isAdmin === false" class="display-user">
+        <WorkingTime></WorkingTime>
+        <ChartManager></ChartManager>
+      </div>
       
-      <WorkingTime></WorkingTime>
-      <ChartManager></ChartManager>
       
     </div>
   </template>
@@ -12,18 +18,64 @@
   import "../styles/User.scss"
   import ChartManager from "./ChartManager.vue"
   import WorkingTime from "./WorkingTime.vue"
+  import UserManager from "./subComponents/admin/UserManager.vue"
 
 export default {
     name: 'DashBoard',
 
-    components: { ChartManager, WorkingTime },
+    components: { ChartManager, WorkingTime, UserManager },
 
-    created () {
+    data () {
+      return {
+        isAdmin: Boolean,
+      }
+    },
+
+    async created () {
       const userToken = localStorage.getItem('user_token');
-
       if (userToken == '') {
         this.$router.push({path: '/Signin'});
       }
+
+
+      const url = `${process.env.VUE_APP_API_BASE_URL}api/current/user`;
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", "Bearer " + userToken);
+
+      try {
+          const response = await fetch(url, {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+          });
+          
+          if (!response.ok) {
+          throw new Error('Network response was not ok');
+          }
+          else {
+            const responseData = await response.json();
+            console.log("CHECK log workuser " + JSON.stringify(responseData.data));
+
+            if (JSON.parse(JSON.stringify(responseData.data.role)) == "admin") {
+              this.isAdmin = true;
+              console.log("CHECK log workuser " + JSON.stringify(responseData.data));
+              // this.loggedUser.id = (JSON.stringify(responseData.data.id));
+
+              // this.adminPost(myHeaders);
+            }
+            else { // user is not admin
+              this.isAdmin = false;
+            }
+            
+            
+            
+          } 
+        }catch (error) {
+          console.error('Error:', error);
+          
+      }
+          
+     
     }
 }
 

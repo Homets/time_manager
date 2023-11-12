@@ -97,7 +97,7 @@ export default {
 
     async handleSubmit() {
       // let inApp = false;
-      const url = `${process.env.VUE_APP_API_BASE_URL}api/register`;
+      const url = `${process.env.VUE_APP_API_BASE_URL}auth/register`;
       this.submitting = true;
 
       const data = {

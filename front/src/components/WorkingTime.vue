@@ -1,18 +1,15 @@
 <template>
     <div class="work-time">
-      <div class="work-button">
+      <div v-if=" isAdmin === true" class="admin-box">
+        <div class="work-button">
         <h1>Working Time</h1>
-        <!-- <h3>{{ msg }}</h3> -->
         <button @click="openModal">✛ Add</button>
         <PopUp v-show="isModalVisible" @close="closeModal" ></PopUp>
-       
-        <!-- <Teleport to="body">
-          <Popup v-if="isOpened" @close="isOpened = !isOpened" />
-        </Teleport> -->
-      </div>
-     
-        <!-- <div class="work-ctr"> -->
-          <div v-if=" inside !== false" class="work-ctr">
+      
+    
+        </div>
+    
+        <div v-if=" inside !== false" class="work-ctr">
           <form  class="added-time" @submit.prevent="handleSubmit">
             <input
                 class="work-input"
@@ -28,9 +25,12 @@
             />
             <button class="add-work-butt">Change</button>
           </form>
-           
+          
         </div>
 
+
+      </div>
+      
         
 
     </div>
@@ -62,6 +62,7 @@ import PopUp from "./subComponents/PopUp.vue";
           start: '',
           end: '',
           inside: false,
+          isAdmin: false,
 
           loggedUser: {
                 id: 0,
@@ -91,34 +92,23 @@ import PopUp from "./subComponents/PopUp.vue";
                 if (!response.ok) {
                 throw new Error('Network response was not ok');
                 }
-                //getting workingtimes here
                 else {
                   const responseData = await response.json();
-                  
                   console.log("CHECK log workuser " + JSON.stringify(responseData.data));
-                  this.loggedUser.id = (JSON.stringify(responseData.data.id));
 
-                  const url = `${process.env.VUE_APP_API_BASE_URL}api/workingtimes/${this.loggedUser.id}`;
-                
-                  try {
-                    const response = await fetch(url, {
-                    method: 'GET',
-                    headers: myHeaders,
-                    redirect: 'follow'
-                    });
-                    
-                    if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                    }
-                    const responseData = await response.json();
-                    console.log("workingtimes " + JSON.parse(JSON.stringify(responseData.data)));
+                  if (JSON.parse(JSON.stringify(responseData.data.role)) == "admin") {
+                    this.isAdmin = true;
+                    console.log("CHECK log workuser " + JSON.stringify(responseData.data));
                     this.loggedUser.id = (JSON.stringify(responseData.data.id));
-                    this.inside = true;
 
-                  } catch (error) {
-                    console.error('Error:', error);
-                    // localStorage.setItem('user_token', "");
+                    this.adminPost(myHeaders);
                   }
+                  else { // user is not admin
+
+                  }
+                  
+                  
+                  
                 } 
               }catch (error) {
                 console.error('Error:', error);
@@ -134,6 +124,30 @@ import PopUp from "./subComponents/PopUp.vue";
 
     components: { PopUp },
     methods: {
+      async adminPost(myHeaders) {
+        const url = `${process.env.VUE_APP_API_BASE_URL}api/admin/workingtimes/5`;
+                
+        try {
+          const response = await fetch(url, {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+          });
+          
+          if (!response.ok) {
+          throw new Error('Network response was not ok');
+          }
+          const responseData = await response.json();
+          console.log("workingtimes " + JSON.stringify(responseData.data));
+          // this.loggedUser.id = (JSON.stringify(responseData.data.id));
+          this.inside = true;
+
+        } catch (error) {
+          console.error('Error:', error);
+          // localStorage.setItem('user_token', "");
+        }
+      }
+      ,
       openModal() {
         this.isModalVisible = true;
       },
@@ -147,13 +161,21 @@ import PopUp from "./subComponents/PopUp.vue";
   
   <style>
 
+.admin-box{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .work-time {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-bottom: 50px;
+  /* margin-bottom: 50px; */
  
 }
 

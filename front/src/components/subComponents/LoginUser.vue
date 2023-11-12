@@ -65,7 +65,7 @@
 
         async handleSubmit() {
         let inApp = false;
-        const url = `${process.env.VUE_APP_API_BASE_URL}api/signin`;
+        const url = `${process.env.VUE_APP_API_BASE_URL}auth/signin`;
         this.submitting = true;
 
         const data = {
